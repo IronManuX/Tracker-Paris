@@ -34,9 +34,14 @@ except Exception as e:
 def load_data():
     data = sheet.get_all_records()
     df = pd.DataFrame(data)
+    
+    # Nouvelle méthode robuste de nettoyage
     for col in ['Mise', 'Gain', 'Bénéfice', 'Cote']:
-        if col in df.columns and df[col].dtype == 'object':
-            df[col] = df[col].astype(str).str.replace(',', '.').astype(float)
+        if col in df.columns:
+            # On remplace les virgules, on enlève les espaces, et on convertit en nombre.
+            # "coerce" permet de transformer les erreurs (comme une case vide) en 0
+            df[col] = pd.to_numeric(df[col].astype(str).str.replace(',', '.').str.replace('€', '').str.strip(), errors='coerce').fillna(0)
+    
     return df
 
 df = load_data()
